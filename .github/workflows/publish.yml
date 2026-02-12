@@ -74,14 +74,16 @@ jobs:
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          publish: ${{ github.event.inputs.publish != 'false' }}  # Publish by default, unless explicitly disabled via workflow_dispatch
+          publish: ${{ github.event.inputs.publish == 'true' || github.event.inputs.publish == '' || github.event.inputs.publish == null }}  # Publish by default (for tags and manual with default), disable only when explicitly set to 'false'
         continue-on-error: true
         id: chrome_publish
       
       - name: Handle publish failure
         if: steps.chrome_publish.outcome == 'failure'
         run: |
-          echo "::error::Chrome Web Store publish failed with HTTP 400 or other error"
+          echo "::error::Chrome Web Store publish failed"
+          echo ""
+          echo "The extension upload succeeded, but publishing failed."
           echo ""
           echo "Common causes of HTTP 400 errors during publish:"
           echo "1. Extension is already in review - wait for review to complete before republishing"
