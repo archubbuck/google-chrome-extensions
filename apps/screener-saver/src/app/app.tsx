@@ -9,6 +9,20 @@ interface ScreenerQuestion {
   url: string;
 }
 
+// Helper function to filter questions
+function filterQuestions(questions: ScreenerQuestion[], searchTerm: string): ScreenerQuestion[] {
+  if (!searchTerm.trim()) {
+    return questions;
+  }
+
+  const term = searchTerm.toLowerCase();
+  return questions.filter(
+    (q) =>
+      q.questionText.toLowerCase().includes(term) ||
+      q.answer.toLowerCase().includes(term)
+  );
+}
+
 export function App() {
   const [questions, setQuestions] = useState<ScreenerQuestion[]>([]);
   const [filteredQuestions, setFilteredQuestions] = useState<ScreenerQuestion[]>([]);
@@ -37,17 +51,7 @@ export function App() {
 
   // Filter questions based on search term
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredQuestions(questions);
-      return;
-    }
-
-    const term = searchTerm.toLowerCase();
-    const filtered = questions.filter(
-      (q) =>
-        q.questionText.toLowerCase().includes(term) ||
-        q.answer.toLowerCase().includes(term)
-    );
+    const filtered = filterQuestions(questions, searchTerm);
     setFilteredQuestions(filtered);
   }, [searchTerm, questions]);
 
@@ -70,11 +74,7 @@ export function App() {
       const updated = questions.filter((q) => q.id !== id);
       await chrome.storage.local.set({ savedQuestions: updated });
       setQuestions(updated);
-      setFilteredQuestions(updated.filter((q) =>
-        !searchTerm.trim() ||
-        q.questionText.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        q.answer.toLowerCase().includes(searchTerm.toLowerCase())
-      ));
+      setFilteredQuestions(filterQuestions(updated, searchTerm));
     } catch (error) {
       console.error('Error deleting question:', error);
     }

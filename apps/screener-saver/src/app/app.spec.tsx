@@ -4,14 +4,15 @@ import { vi } from 'vitest';
 import App from './app';
 
 // Mock chrome.storage API
-global.chrome = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).chrome = {
   storage: {
     local: {
       get: vi.fn(() => Promise.resolve({ savedQuestions: [] })),
       set: vi.fn(() => Promise.resolve()),
     },
   },
-} as any;
+};
 
 describe('App', () => {
   it('should render successfully', () => {

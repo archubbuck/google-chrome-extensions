@@ -1,6 +1,9 @@
 // Content script to detect and capture screener questions
 // Targets tk-card-select and split-view patterns
 
+// Delay to allow UI to settle before capturing answers
+const CAPTURE_DELAY_MS = 100;
+
 interface ScreenerQuestion {
   id: string;
   questionText: string;
@@ -166,13 +169,13 @@ function detectAndCaptureOnSubmit(): void {
     const buttons = document.querySelectorAll(selector);
     buttons.forEach(button => {
       button.addEventListener('click', () => {
-        // Small delay to ensure answers are captured
+        // Small delay to ensure answers are captured after UI updates
         setTimeout(() => {
           const questions = captureScreenerData();
           if (questions.length > 0) {
             saveQuestions(questions);
           }
-        }, 100);
+        }, CAPTURE_DELAY_MS);
       });
     });
   });
