@@ -1,0 +1,64 @@
+name: Publish to Chrome Web Store
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v1.0.0, v1.0.1, etc.
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to create GitHub releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npx nx build screener-saver
+
+      - name: Package extension
+        run: |
+          cd apps/screener-saver/dist
+          zip -r ../screener-saver.zip .
+          cd ../../..
+
+      - name: Upload extension package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screener-saver-package
+          path: apps/screener-saver/screener-saver.zip
+          retention-days: 30
+
+      # Pin to commit SHA for supply-chain security (v5.0.0)
+      - name: Publish to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@4008e29e13c144d0f6725462cbd49b7c291b4928
+        with:
+          file-path: apps/screener-saver/screener-saver.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          publish: true  # Set to false if you want to upload but not publish
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: apps/screener-saver/screener-saver.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

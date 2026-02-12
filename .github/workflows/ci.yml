@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npx nx lint screener-saver
+
+      - name: Typecheck
+        run: npx nx typecheck screener-saver
+
+      - name: Test
+        run: npx nx test screener-saver
+
+      - name: Build
+        run: npx nx build screener-saver
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: screener-saver-dist
+          path: apps/screener-saver/dist/
+          retention-days: 7
