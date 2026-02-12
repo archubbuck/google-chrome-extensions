@@ -3,7 +3,7 @@
 # Script to package the Screener Saver extension for Chrome Web Store
 # Usage: ./scripts/package-extension.sh
 
-set -e
+set -euo pipefail
 
 echo "📦 Packaging Screener Saver extension..."
 
@@ -13,9 +13,9 @@ npx nx build screener-saver
 
 # Package it
 echo "📦 Creating ZIP package..."
-cd apps/screener-saver/dist
+pushd apps/screener-saver/dist > /dev/null
 zip -r ../screener-saver.zip .
-cd ../../..
+popd > /dev/null
 
 # Get file size
 SIZE=$(du -h apps/screener-saver/screener-saver.zip | cut -f1)

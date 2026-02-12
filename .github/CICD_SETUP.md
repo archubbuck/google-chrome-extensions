@@ -54,10 +54,10 @@ To enable automated publishing to the Chrome Web Store, you need to set up API c
    a. Open a browser and navigate to this URL (replace `YOUR_CLIENT_ID` with your actual Client ID):
    
    ```
-   https://accounts.google.com/o/oauth2/auth?response_type=code&scope=https://www.googleapis.com/auth/chromewebstore&client_id=YOUR_CLIENT_ID&redirect_uri=urn:ietf:wg:oauth:2.0:oob
+   https://accounts.google.com/o/oauth2/auth?response_type=code&scope=https://www.googleapis.com/auth/chromewebstore&client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost
    ```
 
-   b. Authorize the application and copy the authorization code
+   b. Authorize the application. You'll be redirected to localhost (which will fail to load), but copy the authorization code from the URL bar. The URL will look like: `http://localhost/?code=AUTHORIZATION_CODE`
 
    c. Exchange the authorization code for a refresh token using curl:
    
@@ -67,7 +67,7 @@ To enable automated publishing to the Chrome Web Store, you need to set up API c
      -d "client_secret=YOUR_CLIENT_SECRET" \
      -d "code=AUTHORIZATION_CODE" \
      -d "grant_type=authorization_code" \
-     -d "redirect_uri=urn:ietf:wg:oauth:2.0:oob" \
+     -d "redirect_uri=http://localhost" \
      https://oauth2.googleapis.com/token
    ```
 

@@ -43,8 +43,9 @@ jobs:
           path: apps/screener-saver/screener-saver.zip
           retention-days: 30
 
+      # Pin to commit SHA for supply-chain security (v5.0.0)
       - name: Publish to Chrome Web Store
-        uses: mnao305/chrome-extension-upload@v5.0.0
+        uses: mnao305/chrome-extension-upload@4008e29e13c144d0f6725462cbd49b7c291b4928
         with:
           file-path: apps/screener-saver/screener-saver.zip
           extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
