@@ -74,7 +74,7 @@ jobs:
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          publish: ${{ github.event.inputs.publish == 'true' || github.event.inputs.publish == '' || github.event.inputs.publish == null }}  # Publish by default (for tags and manual with default), disable only when explicitly set to 'false'
+          publish: ${{ github.event.inputs.publish != 'false' }}  # Publish by default (for tags and manual with default), disable only when explicitly set to 'false'
         continue-on-error: true
         id: chrome_publish
       
