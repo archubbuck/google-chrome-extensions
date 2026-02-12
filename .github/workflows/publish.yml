@@ -81,9 +81,9 @@ jobs:
       - name: Handle publish failure
         if: steps.chrome_publish.outcome == 'failure'
         run: |
-          echo "::error::Chrome Web Store publish failed"
+          echo "::error::Chrome Web Store publish step failed"
           echo ""
-          echo "The extension upload succeeded, but publishing failed."
+          echo "This step uploads the extension and optionally publishes it."
           echo ""
           echo "Common causes of HTTP 400 errors during publish:"
           echo "1. Extension is already in review - wait for review to complete before republishing"
