@@ -155,19 +155,29 @@ async function saveQuestions(questions: ScreenerQuestion[]): Promise<void> {
 
 // Detect submission and capture data
 function detectAndCaptureOnSubmit(): void {
-  // Look for submit buttons
-  const submitSelectors = [
+  // Look for submit buttons - combine selectors to query once and deduplicate
+  const submitSelector = [
     'button[type="submit"]',
     'button[class*="submit"]',
     'button[class*="continue"]',
     'button[class*="next"]',
     '[data-test*="submit"]',
     '[data-test*="continue"]'
-  ];
+  ].join(', ');
 
-  submitSelectors.forEach(selector => {
-    const buttons = document.querySelectorAll(selector);
-    buttons.forEach(button => {
+  const buttons = document.querySelectorAll(submitSelector);
+  
+  // Use a Set to deduplicate buttons that match multiple selectors
+  const uniqueButtons = new Set<Element>(Array.from(buttons));
+
+  uniqueButtons.forEach(button => {
+    // Avoid attaching duplicate listeners when this function is called multiple times
+    if (button instanceof HTMLElement) {
+      if (button.dataset.screenerSaverBound === 'true') {
+        return;
+      }
+      button.dataset.screenerSaverBound = 'true';
+
       button.addEventListener('click', () => {
         // Small delay to ensure answers are captured after UI updates
         setTimeout(() => {
@@ -177,7 +187,7 @@ function detectAndCaptureOnSubmit(): void {
           }
         }, CAPTURE_DELAY_MS);
       });
-    });
+    }
   });
 }
 

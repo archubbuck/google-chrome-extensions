@@ -58,7 +58,7 @@ To run the development server:
 npx nx serve screener-saver
 ```
 
-Note: For Chrome extension development, you'll typically want to build and reload the extension in Chrome rather than using the dev server.
+**Note:** The popup relies on Chrome extension APIs such as `chrome.storage.local`. When running via `npx nx serve screener-saver` as a normal web app, the extension will fall back to using `localStorage` for development. For full Chrome extension functionality, you'll typically want to build and reload the extension in Chrome (see "Load the Extension in Chrome" above).
 
 ## Project Structure
 

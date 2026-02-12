@@ -23,18 +23,37 @@ function filterQuestions(questions: ScreenerQuestion[], searchTerm: string): Scr
   );
 }
 
+// Helper function to save questions with fallback
+async function saveQuestionsToStorage(questions: ScreenerQuestion[]): Promise<void> {
+  if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+    await chrome.storage.local.set({ savedQuestions: questions });
+  } else if (typeof window !== 'undefined' && window.localStorage) {
+    window.localStorage.setItem('savedQuestions', JSON.stringify(questions));
+  }
+}
+
 export function App() {
   const [questions, setQuestions] = useState<ScreenerQuestion[]>([]);
   const [filteredQuestions, setFilteredQuestions] = useState<ScreenerQuestion[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Load questions from chrome.storage.local
+  // Load questions from chrome.storage.local (or fallback to localStorage in non-extension environments)
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const result = await chrome.storage.local.get(['savedQuestions']);
-        const savedQuestions: ScreenerQuestion[] = (result.savedQuestions as ScreenerQuestion[]) || [];
+        let savedQuestions: ScreenerQuestion[] = [];
+
+        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+          const result = await chrome.storage.local.get(['savedQuestions']);
+          savedQuestions = (result.savedQuestions as ScreenerQuestion[]) || [];
+        } else if (typeof window !== 'undefined' && window.localStorage) {
+          const stored = window.localStorage.getItem('savedQuestions');
+          if (stored) {
+            savedQuestions = JSON.parse(stored) as ScreenerQuestion[];
+          }
+        }
+        
         // Sort by timestamp descending (newest first)
         savedQuestions.sort((a, b) => b.timestamp - a.timestamp);
         setQuestions(savedQuestions);
@@ -59,7 +78,7 @@ export function App() {
   const handleClearAll = async () => {
     if (window.confirm('Are you sure you want to delete all saved questions?')) {
       try {
-        await chrome.storage.local.set({ savedQuestions: [] });
+        await saveQuestionsToStorage([]);
         setQuestions([]);
         setFilteredQuestions([]);
       } catch (error) {
@@ -72,7 +91,7 @@ export function App() {
   const handleDeleteQuestion = async (id: string) => {
     try {
       const updated = questions.filter((q) => q.id !== id);
-      await chrome.storage.local.set({ savedQuestions: updated });
+      await saveQuestionsToStorage(updated);
       setQuestions(updated);
       setFilteredQuestions(filterQuestions(updated, searchTerm));
     } catch (error) {
