@@ -5,6 +5,15 @@ on:
     tags:
       - 'v*'  # Trigger on version tags like v1.0.0, v1.0.1, etc.
   workflow_dispatch:  # Allow manual trigger
+    inputs:
+      publish:
+        description: 'Publish to Chrome Web Store (set to false to only upload without publishing)'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   publish:
@@ -35,6 +44,19 @@ jobs:
           cd apps/screener-saver/dist
           zip -r ../screener-saver.zip .
           cd ../../..
+      
+      - name: Validate extension package
+        run: |
+          echo "Checking if extension package was created..."
+          if [ ! -f apps/screener-saver/screener-saver.zip ]; then
+            echo "ERROR: Extension package not found at apps/screener-saver/screener-saver.zip"
+            exit 1
+          fi
+          echo "✓ Extension package exists"
+          
+          echo "Package size: $(du -h apps/screener-saver/screener-saver.zip | cut -f1)"
+          echo "Package contents:"
+          unzip -l apps/screener-saver/screener-saver.zip
 
       - name: Upload extension package as artifact
         uses: actions/upload-artifact@v4
@@ -52,7 +74,40 @@ jobs:
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          publish: true  # Set to false if you want to upload but not publish
+          publish: ${{ github.event.inputs.publish != 'false' }}  # Publish unless explicitly disabled
+        continue-on-error: true
+        id: chrome_publish
+      
+      - name: Handle publish failure
+        if: steps.chrome_publish.outcome == 'failure'
+        run: |
+          echo "::error::Chrome Web Store publish failed - see troubleshooting steps below"
+          echo ""
+          echo "This step uploads the extension and optionally publishes it."
+          echo ""
+          echo "Common causes of HTTP 400 errors during publish:"
+          echo "1. Extension is already in review - wait for review to complete before republishing"
+          echo "2. Missing privacy information in Chrome Web Store Developer Dashboard"
+          echo "3. Missing contact email or data usage certification"
+          echo "4. Invalid OAuth credentials (CHROME_CLIENT_ID, CHROME_CLIENT_SECRET, or CHROME_REFRESH_TOKEN)"
+          echo ""
+          echo "Troubleshooting steps:"
+          echo "1. Visit https://chrome.google.com/webstore/devconsole"
+          echo "2. Check your extension status - if it's 'In Review', wait for review to complete"
+          echo "3. Verify Privacy tab is complete (privacy policy, data usage certification)"
+          echo "4. Verify Account tab has a contact email"
+          echo "5. Verify all secrets are correctly set in GitHub repository settings:"
+          echo "   - CHROME_EXTENSION_ID"
+          echo "   - CHROME_CLIENT_ID"
+          echo "   - CHROME_CLIENT_SECRET"
+          echo "   - CHROME_REFRESH_TOKEN"
+          echo ""
+          echo "If credentials are correct and all requirements are met, try manually uploading"
+          echo "via the Developer Dashboard to get more detailed error messages."
+          echo ""
+          echo "The extension package has been uploaded as a GitHub Actions artifact and can be"
+          echo "used for manual upload if needed."
+          exit 1
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
