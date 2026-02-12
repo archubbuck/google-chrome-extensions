@@ -108,6 +108,15 @@ Then configure it as a Chrome extension by:
 2. Creating content scripts in `src/`
 3. Updating `vite.config.mts` to build the extension properly
 
+## CI/CD
+
+This repository includes automated CI/CD workflows for building, testing, and publishing extensions to the Chrome Web Store.
+
+- **Continuous Integration:** Automatically builds and tests extensions on every push and pull request
+- **Automated Publishing:** Publishes extensions to Chrome Web Store when version tags are pushed
+
+See [.github/CICD_SETUP.md](.github/CICD_SETUP.md) for detailed setup instructions.
+
 ## Useful links
 
 Learn more:
