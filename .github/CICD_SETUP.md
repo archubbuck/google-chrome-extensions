@@ -154,7 +154,7 @@ You can also manually trigger the publish workflow:
 If you encounter an HTTP 400 error specifically during the "Publish to Chrome Web Store" step (after a successful upload), this indicates the Chrome Web Store API rejected the publish request. Here are the most common causes and solutions:
 
 #### Cause 1: Extension Already in Review
-**Error Message:** "Publish condition not met: You may not edit or publish an item that is in review."
+**Example Error:** "Publish condition not met: You may not edit or publish an item that is in review."
 
 **Solution:**
 - Wait for the current review to complete before attempting to republish
@@ -162,7 +162,7 @@ If you encounter an HTTP 400 error specifically during the "Publish to Chrome We
 - Once the review is complete, you can publish a new version
 
 #### Cause 2: Missing Privacy Information
-**Error Message:** "Publish condition not met: To publish your item, you must provide mandatory privacy information"
+**Example Error:** "Publish condition not met: To publish your item, you must provide mandatory privacy information"
 
 **Solution:**
 1. Go to https://chrome.google.com/webstore/devconsole
@@ -174,7 +174,7 @@ If you encounter an HTTP 400 error specifically during the "Publish to Chrome We
    - Justification for requested permissions
 
 #### Cause 3: Missing Contact Email or Certifications
-**Error Message:** "Publish condition not met: You must provide a contact email" or "certify that your data usage complies with our Developer Program Policies"
+**Example Error:** "Publish condition not met: You must provide a contact email" or "certify that your data usage complies with our Developer Program Policies"
 
 **Solution:**
 1. Go to https://chrome.google.com/webstore/devconsole
@@ -184,7 +184,7 @@ If you encounter an HTTP 400 error specifically during the "Publish to Chrome We
 5. Complete all required declarations about data collection and usage
 
 #### Cause 4: Invalid OAuth Credentials
-**Error Message:** "invalid_grant: Bad Request" or authentication-related 400 errors
+**Example Error:** "invalid_grant: Bad Request" or authentication-related 400 errors
 
 **Solution:**
 1. Verify all four secrets are correctly set in GitHub Settings > Secrets and variables > Actions:
