@@ -20,7 +20,7 @@ export function App() {
     const loadQuestions = async () => {
       try {
         const result = await chrome.storage.local.get(['savedQuestions']);
-        const savedQuestions: ScreenerQuestion[] = result.savedQuestions || [];
+        const savedQuestions: ScreenerQuestion[] = (result.savedQuestions as ScreenerQuestion[]) || [];
         // Sort by timestamp descending (newest first)
         savedQuestions.sort((a, b) => b.timestamp - a.timestamp);
         setQuestions(savedQuestions);

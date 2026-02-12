@@ -127,7 +127,7 @@ async function saveQuestions(questions: ScreenerQuestion[]): Promise<void> {
   try {
     // Get existing questions
     const result = await chrome.storage.local.get(['savedQuestions']);
-    const savedQuestions: ScreenerQuestion[] = result.savedQuestions || [];
+    const savedQuestions: ScreenerQuestion[] = (result.savedQuestions as ScreenerQuestion[]) || [];
 
     // Add new questions (avoid duplicates based on question text and answer)
     questions.forEach(newQuestion => {
