@@ -204,7 +204,7 @@ If you want to test the upload process without actually publishing the extension
 2. Click "Publish to Chrome Web Store" workflow
 3. Click "Run workflow"
 4. Select the branch
-5. Set "Publish to Chrome Web Store" to **false**
+5. Set 'publish' to **false**
 6. Click "Run workflow"
 
 This will upload the extension to Chrome Web Store without publishing it, allowing you to verify the upload works without triggering a review.
