@@ -149,6 +149,74 @@ You can also manually trigger the publish workflow:
    - Check that the manifest.json version is higher than the currently published version
    - Ensure the ZIP file is correctly structured (manifest.json should be at the root)
 
+### HTTP 400 (Bad Request) Errors During Publish
+
+If you encounter an HTTP 400 error specifically during the "Publish to Chrome Web Store" step (after a successful upload), this indicates the Chrome Web Store API rejected the publish request. Here are the most common causes and solutions:
+
+#### Cause 1: Extension Already in Review
+**Error Message:** "Publish condition not met: You may not edit or publish an item that is in review."
+
+**Solution:**
+- Wait for the current review to complete before attempting to republish
+- Check your extension status at https://chrome.google.com/webstore/devconsole
+- Once the review is complete, you can publish a new version
+
+#### Cause 2: Missing Privacy Information
+**Error Message:** "Publish condition not met: To publish your item, you must provide mandatory privacy information"
+
+**Solution:**
+1. Go to https://chrome.google.com/webstore/devconsole
+2. Click on your extension
+3. Navigate to the "Privacy" or "Privacy practices" tab
+4. Complete all required fields:
+   - Privacy policy URL (if your extension collects user data)
+   - Data usage certification
+   - Justification for requested permissions
+
+#### Cause 3: Missing Contact Email or Certifications
+**Error Message:** "Publish condition not met: You must provide a contact email" or "certify that your data usage complies with our Developer Program Policies"
+
+**Solution:**
+1. Go to https://chrome.google.com/webstore/devconsole
+2. Check the "Account" tab and ensure a contact email is set
+3. On your extension's edit page, go to the "Privacy practices" tab
+4. Certify that your data usage complies with Developer Program Policies
+5. Complete all required declarations about data collection and usage
+
+#### Cause 4: Invalid OAuth Credentials
+**Error Message:** "invalid_grant: Bad Request" or authentication-related 400 errors
+
+**Solution:**
+1. Verify all four secrets are correctly set in GitHub Settings > Secrets and variables > Actions:
+   - `CHROME_EXTENSION_ID`
+   - `CHROME_CLIENT_ID`
+   - `CHROME_CLIENT_SECRET`
+   - `CHROME_REFRESH_TOKEN`
+2. Ensure there are no extra spaces or newlines when pasting secret values
+3. If credentials are old, regenerate the refresh token (see Step 1 above)
+4. Verify the OAuth client is still active in Google Cloud Console
+
+#### Testing Without Publishing
+
+If you want to test the upload process without actually publishing the extension:
+
+1. Go to the Actions tab in your repository
+2. Click "Publish to Chrome Web Store" workflow
+3. Click "Run workflow"
+4. Select the branch
+5. Set "Publish to Chrome Web Store" to **false**
+6. Click "Run workflow"
+
+This will upload the extension to Chrome Web Store without publishing it, allowing you to verify the upload works without triggering a review.
+
+#### Getting More Detailed Error Information
+
+If the workflow error message doesn't provide enough detail:
+
+1. Download the extension package from the GitHub Actions artifacts
+2. Try uploading it manually via https://chrome.google.com/webstore/devconsole
+3. The Developer Dashboard will provide more specific error messages about what's wrong
+
 ### Debugging Tips
 
 - Run the build locally to ensure it produces a valid extension
