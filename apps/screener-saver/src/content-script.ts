@@ -4,7 +4,7 @@
 // Delay to allow UI to settle before capturing answers
 const CAPTURE_DELAY_MS = 100;
 
-interface ScreenerQuestion {
+export interface ScreenerQuestion {
   id: string;
   questionText: string;
   answer: string;
@@ -18,7 +18,7 @@ function generateQuestionId(questionText: string): string {
 }
 
 // Extract question text from tk-card-select elements
-function extractQuestionText(element: Element): string | null {
+export function extractQuestionText(element: Element): string | null {
   // Try different selectors for question text
   const questionSelectors = [
     '.question-text',
@@ -46,7 +46,7 @@ function extractQuestionText(element: Element): string | null {
 }
 
 // Extract selected answer from tk-card-select or split-view
-function extractSelectedAnswer(element: Element): string | null {
+export function extractSelectedAnswer(element: Element): string | null {
   // Look for selected/checked options
   const selectedSelectors = [
     'input[type="radio"]:checked',
@@ -75,12 +75,13 @@ function extractSelectedAnswer(element: Element): string | null {
       
       if (targetElement) {
         // Try to find specific answer text elements within the target
+        // Ordered by specificity - more specific selectors first
         const answerTextSelectors = [
           '.tk-card-select__option-label',
           '.option-text',
-          'span',
           '.label-text',
-          '[data-test*="option-text"]'
+          '[data-test*="option-text"]',
+          'span' // Generic span as last resort
         ];
         
         let text = '';
