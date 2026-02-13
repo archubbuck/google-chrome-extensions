@@ -61,13 +61,42 @@ function extractSelectedAnswer(element: Element): string | null {
   for (const selector of selectedSelectors) {
     const options = element.querySelectorAll(selector);
     options.forEach(option => {
-      // Try to get label text
-      const label = option.closest('label') || 
-                   element.querySelector(`label[for="${option.id}"]`) ||
-                   option.parentElement;
+      let targetElement: Element | null = null;
       
-      if (label?.textContent) {
-        const text = label.textContent.trim();
+      // If the matched element is a label or has a label role, use it directly
+      if (option.tagName === 'LABEL' || option.getAttribute('role') === 'option') {
+        targetElement = option;
+      } else {
+        // Otherwise, try to find the associated label
+        targetElement = option.closest('label') || 
+                       element.querySelector(`label[for="${option.id}"]`) ||
+                       option.parentElement;
+      }
+      
+      if (targetElement) {
+        // Try to find specific answer text elements within the target
+        const answerTextSelectors = [
+          '.tk-card-select__option-label',
+          '.option-text',
+          'span',
+          '.label-text',
+          '[data-test*="option-text"]'
+        ];
+        
+        let text = '';
+        for (const textSelector of answerTextSelectors) {
+          const textElement = targetElement.querySelector(textSelector);
+          if (textElement?.textContent?.trim()) {
+            text = textElement.textContent.trim();
+            break;
+          }
+        }
+        
+        // Fallback to full text if no specific text element found
+        if (!text && targetElement.textContent) {
+          text = targetElement.textContent.trim();
+        }
+        
         if (text && !selectedElements.includes(text)) {
           selectedElements.push(text);
         }
