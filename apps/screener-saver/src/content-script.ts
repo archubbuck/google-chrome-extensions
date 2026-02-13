@@ -80,8 +80,7 @@ export function extractSelectedAnswer(element: Element): string | null {
           '.tk-card-select__option-label',
           '.option-text',
           '.label-text',
-          '[data-test*="option-text"]',
-          'span' // Generic span as last resort
+          '[data-test*="option-text"]'
         ];
         
         let text = '';
