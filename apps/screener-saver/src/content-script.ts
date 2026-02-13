@@ -4,7 +4,7 @@
 // Delay to allow UI to settle before capturing answers
 const CAPTURE_DELAY_MS = 100;
 
-interface ScreenerQuestion {
+export interface ScreenerQuestion {
   id: string;
   questionText: string;
   answer: string;
@@ -18,7 +18,7 @@ function generateQuestionId(questionText: string): string {
 }
 
 // Extract question text from tk-card-select elements
-function extractQuestionText(element: Element): string | null {
+export function extractQuestionText(element: Element): string | null {
   // Try different selectors for question text
   const questionSelectors = [
     '.question-text',
@@ -46,7 +46,7 @@ function extractQuestionText(element: Element): string | null {
 }
 
 // Extract selected answer from tk-card-select or split-view
-function extractSelectedAnswer(element: Element): string | null {
+export function extractSelectedAnswer(element: Element): string | null {
   // Look for selected/checked options
   const selectedSelectors = [
     'input[type="radio"]:checked',
@@ -61,13 +61,42 @@ function extractSelectedAnswer(element: Element): string | null {
   for (const selector of selectedSelectors) {
     const options = element.querySelectorAll(selector);
     options.forEach(option => {
-      // Try to get label text
-      const label = option.closest('label') || 
-                   element.querySelector(`label[for="${option.id}"]`) ||
-                   option.parentElement;
+      let targetElement: Element | null = null;
       
-      if (label?.textContent) {
-        const text = label.textContent.trim();
+      // If the matched element is a label or has a label role, use it directly
+      if (option.tagName === 'LABEL' || option.getAttribute('role') === 'option') {
+        targetElement = option;
+      } else {
+        // Otherwise, try to find the associated label
+        targetElement = option.closest('label') || 
+                       element.querySelector(`label[for="${option.id}"]`) ||
+                       option.parentElement;
+      }
+      
+      if (targetElement) {
+        // Try to find specific answer text elements within the target
+        // Ordered by specificity - more specific selectors first
+        const answerTextSelectors = [
+          '.tk-card-select__option-label',
+          '.option-text',
+          '.label-text',
+          '[data-test*="option-text"]'
+        ];
+        
+        let text = '';
+        for (const textSelector of answerTextSelectors) {
+          const textElement = targetElement.querySelector(textSelector);
+          if (textElement?.textContent?.trim()) {
+            text = textElement.textContent.trim();
+            break;
+          }
+        }
+        
+        // Fallback to full text if no specific text element found
+        if (!text && targetElement.textContent) {
+          text = targetElement.textContent.trim();
+        }
+        
         if (text && !selectedElements.includes(text)) {
           selectedElements.push(text);
         }
